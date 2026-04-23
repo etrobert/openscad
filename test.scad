@@ -15,11 +15,11 @@ interior_width = sock_space_width - 2 * wall_width; // = 90
 
 module insert_body() {
   // Bottom
-  cube([sock_space_width, drawer_inner_depth, wall_width], center=true);
+  cube([sock_space_width + wall_width * 2, drawer_inner_depth, wall_width], center=true);
 
   // Walls
   for (sx = [-1, 1]) {
-    translate([sx * (sock_space_width / 2 - wall_width / 2), 0, height / 2])
+    translate([sx * (sock_space_width / 2 + wall_width / 2), 0, height / 2])
       cube([wall_width, drawer_inner_depth, height], center=true);
   }
 
