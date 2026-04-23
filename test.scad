@@ -10,7 +10,7 @@ sock_space_width = 100;
 height = 100;
 
 // Derived
-front_panel_height = height / 3;
+front_panel_height = height * 2 / 3;
 interior_width = sock_space_width - 2 * wall_width; // = 90
 groove_bonus = 1; // This is used to help visualisation. Set to 0 for exact dimensions.
 
@@ -29,12 +29,16 @@ module insert_body() {
         // Elastic Band Groove
         translate([sx * ( -groove_depth / 2), 0, 0])
           cube([groove_depth, drawer_inner_depth + groove_bonus, wall_width], center=true);
+
+        // Bottom Groove
+        translate([sx * ( -groove_depth / 2), 0, -(height / 2 - wall_width)])
+          cube([groove_depth, drawer_inner_depth + groove_bonus, wall_width], center=true);
       }
   }
 
   // Front panel
   translate([0, -(drawer_inner_depth / 2 - wall_width / 2), front_panel_height / 2])
-    cube([sock_space_width, wall_width, front_panel_height], center=true);
+    cube([sock_space_width + wall_width * 2, wall_width, front_panel_height], center=true);
 }
 
 // Render insert
