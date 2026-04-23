@@ -15,10 +15,6 @@ rail_gap = 4; // groove opening height
 rail_groove_d = 3; // groove depth into the wall (wall_width - rail_groove_d = 2 mm remaining)
 clearance = 0.3;
 
-// Elastic attachment
-elastic_hole_d = 4;
-elastic_offset_x = 20;
-
 // Derived
 front_panel_height = height / 2;
 interior_width = sock_space_width - 2 * wall_width; // = 90
@@ -51,19 +47,6 @@ module insert_body() {
       translate([sx * (wall_inside_x + rail_groove_d / 2), rail_y_mid, rail_center_z])
         cube([rail_groove_d, rail_depth, rail_gap], center=true);
     }
-
-    // Elastic attachment holes through front panel
-    for (sx = [-1, 1]) {
-      translate(
-        [
-          sx * elastic_offset_x / 2,
-          -(drawer_inner_depth / 2 - wall_width / 2),
-          front_panel_height / 2,
-        ]
-      )
-        rotate([90, 0, 0])
-          cylinder(d=elastic_hole_d, h=wall_width * 4, center=true, $fn=20);
-    }
   }
 }
 
@@ -90,13 +73,6 @@ module pusher_panel() {
       // Left tab — slides into left wall groove
       translate([-(pusher_body_w / 2 + tab_ext / 2), 0, rail_center_z])
         cube([tab_ext, pusher_depth, tab_h], center=true);
-    }
-
-    // Elastic attachment holes (align with front-panel holes in Z)
-    for (sx = [-1, 1]) {
-      translate([sx * elastic_offset_x / 2, 0, front_panel_height / 2])
-        rotate([90, 0, 0])
-          cylinder(d=elastic_hole_d, h=pusher_depth * 4, center=true, $fn=20);
     }
   }
 }
