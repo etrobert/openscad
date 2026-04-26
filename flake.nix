@@ -36,7 +36,7 @@
           in
           pkgs.mkShell {
             packages = with pkgs; [
-              openscad
+              openscad-unstable
             ];
 
             shellHook = ''
