@@ -10,17 +10,17 @@ $fs = 0.25;
 // Tune clearance using clearance-test.scad before printing
 
 clearance = 0.2; // total extra per axis — adjust from test results
-hole      = 10 + clearance;
-corner_r  = 1;   // small radius to fit square handles
+hole = 10 + clearance;
+corner_r = 1; // small radius to fit square handles
 
 bin = new_bin([5, 2], 56);
 
 depth = bin_get_infill_size_mm(bin).z;
 
 bin_render(bin) {
-    bin_subdivide(bin, [5, 2]) {
-        translate([0, 0, -depth])
-        linear_extrude(depth + 1)
-            rounded_square([hole, hole], corner_r, center = true);
-    }
+  bin_subdivide(bin, [5, 2]) {
+    translate([0, 0, -depth])
+      linear_extrude(depth + 1)
+        rounded_square([hole, hole], corner_r, center=true);
+  }
 }
