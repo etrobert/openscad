@@ -13,7 +13,9 @@ clearance = 0.2; // total extra per axis
 hole = 10 + clearance;
 corner_r = 1; // small radius to fit square handles
 
-bin = new_bin([2, 2], 56, hole_options = bundle_hole_options(refined_hole = true));
+h = 8; // gridfinity height units (total height = h × 7mm)
+
+bin = new_bin([2, 2], h * 7, hole_options = bundle_hole_options(refined_hole = true));
 
 depth = bin_get_infill_size_mm(bin).z;
 
