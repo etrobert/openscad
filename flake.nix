@@ -33,10 +33,18 @@
                 cp -r . $out/gridfinity-rebuilt-openscad/
               '';
             };
+
+            scadFmt = pkgs.writeShellScriptBin "scad-fmt" ''
+              exec ${pkgs.topiary}/bin/topiary format \
+                --query ${pkgs.openscad-lsp.src}/src/openscad.scm \
+                --language openscad \
+                "$@"
+            '';
           in
           pkgs.mkShell {
             packages = with pkgs; [
               openscad-unstable
+              scadFmt
             ];
 
             shellHook = ''
