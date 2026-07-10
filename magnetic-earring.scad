@@ -1,6 +1,6 @@
 // Magnetic stud earring — no piercing, earlobe clamped between the printed
 // front piece and a bare 6×2mm neodymium disc behind the lobe.
-// Print face down. Magnet is pause-captured: pause at z=4.2 (pocket top),
+// Print face down. Magnet is pause-captured: pause at z=4.2 (slim: z=2.8),
 // drop the magnet in, resume. Magnet sits 0.2 below the pause surface so
 // the nozzle can't snag it. Polarity doesn't matter — the bare back magnet
 // flips itself to attract.
@@ -23,9 +23,9 @@ pocket_bottom = pocket_top - magnet_h - recess;
 
 spacing = face_d + 6;
 
-module pocket() {
-  translate(v=[0, 0, pocket_bottom])
-    cylinder(h=pocket_top - pocket_bottom, d=pocket_d);
+module pocket(bottom = pocket_bottom) {
+  translate(v=[0, 0, bottom])
+    cylinder(h=magnet_h + recess, d=pocket_d);
 }
 
 // octagonal frustum flaring from the table to full width, like a bezel-cut stone
@@ -88,7 +88,23 @@ module disc() {
   }
 }
 
+// flat disc as thin as the magnet allows, small edge chamfer
+module slim() {
+  floor_h = 0.6;
+  chamfer_h = 0.6;
+  slim_h = floor_h + magnet_h + recess + cap_h;
+  difference() {
+    union() {
+      cylinder(h=chamfer_h, d1=face_d - 2 * chamfer_h, d2=face_d);
+      translate(v=[0, 0, chamfer_h])
+        cylinder(h=slim_h - chamfer_h, d=face_d);
+    }
+    pocket(floor_h);
+  }
+}
+
 gem();
 translate(v=[spacing, 0, 0]) hex();
 translate(v=[2 * spacing, 0, 0]) star();
 translate(v=[3 * spacing, 0, 0]) disc();
+translate(v=[4 * spacing, 0, 0]) slim();
