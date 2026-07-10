@@ -105,6 +105,27 @@ module slim(chamfer_h = 0.6, d = face_d) {
 
 slim_chamfers = [0.6, 0.4, 0.2, 0];
 
+// thinnest variant, printed face UP (skin side on the plate) so the visible
+// face is a top surface, not the plate texture. Heights sit on the 0.12mm
+// preset grid (0.2 first layer + 0.12 steps) — slice at 0.12 only.
+// Pause at z=2.6 nominal; place it visually (last layer with open pockets).
+module extra_slim(chamfer_h = 0.6, d = 8) {
+  cap_h = 0.44; // skin side, against the plate
+  recess = 0.16;
+  floor_h = 0.48; // face layers bridging over the magnet
+  h = cap_h + magnet_h + recess + floor_h;
+  difference() {
+    union() {
+      cylinder(h=h - chamfer_h, d=d);
+      if (chamfer_h > 0)
+        translate(v=[0, 0, h - chamfer_h])
+          cylinder(h=chamfer_h, d1=d, d2=d - 2 * chamfer_h);
+    }
+    translate(v=[0, 0, cap_h])
+      cylinder(h=magnet_h + recess, d=pocket_d);
+  }
+}
+
 gem();
 translate(v=[spacing, 0, 0]) hex();
 translate(v=[2 * spacing, 0, 0]) star();
