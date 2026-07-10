@@ -110,9 +110,9 @@ slim_chamfers = [0.6, 0.4, 0.2, 0];
 // preset grid (0.2 first layer + 0.12 steps) — slice at 0.12 only.
 // Pause at z=2.6 nominal; place it visually (last layer with open pockets).
 module extra_slim(chamfer_h = 0.6, d = 8) {
-  cap_h = 0.44; // skin side, against the plate
+  cap_h = 0.32; // skin side, against the plate — compressed by the magnet, 2 layers suffice
   recess = 0.28; // deep enough that the steel nozzle can't lift the magnet into the bridge
-  floor_h = 0.6; // one sacrificial bridge layer + four face layers
+  floor_h = 0.48; // face layers bridging over the magnet
   h = cap_h + magnet_h + recess + floor_h;
   difference() {
     union() {
