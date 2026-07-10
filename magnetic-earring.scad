@@ -88,14 +88,14 @@ module disc() {
   }
 }
 
-// flat disc as thin as the magnet allows, small edge chamfer
-module slim() {
+// flat disc as thin as the magnet allows, edge chamfer optional
+module slim(chamfer_h = 0.6) {
   floor_h = 0.6;
-  chamfer_h = 0.6;
   slim_h = floor_h + magnet_h + recess + cap_h;
   difference() {
     union() {
-      cylinder(h=chamfer_h, d1=face_d - 2 * chamfer_h, d2=face_d);
+      if (chamfer_h > 0)
+        cylinder(h=chamfer_h, d1=face_d - 2 * chamfer_h, d2=face_d);
       translate(v=[0, 0, chamfer_h])
         cylinder(h=slim_h - chamfer_h, d=face_d);
     }
@@ -103,8 +103,11 @@ module slim() {
   }
 }
 
+slim_chamfers = [0.6, 0.4, 0.2, 0];
+
 gem();
 translate(v=[spacing, 0, 0]) hex();
 translate(v=[2 * spacing, 0, 0]) star();
 translate(v=[3 * spacing, 0, 0]) disc();
-translate(v=[4 * spacing, 0, 0]) slim();
+for (i = [0:3])
+  translate(v=[i * spacing, -spacing, 0]) slim(slim_chamfers[i]);
