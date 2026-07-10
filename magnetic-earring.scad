@@ -1,9 +1,11 @@
 // Magnetic stud earring — no piercing, earlobe clamped between the printed
 // front piece and a bare 6×2mm neodymium disc behind the lobe.
-// Print face down. Magnet is pause-captured: pause at z=4.2 (slim: z=2.8),
-// drop the magnet in, resume. Magnet sits 0.2 below the pause surface so
-// the nozzle can't snag it. Polarity doesn't matter — the bare back magnet
-// flips itself to attract.
+// Printed face up (skin side on the plate) so the visible face is a top
+// surface, not the plate texture. Heights sit on the 0.12mm preset grid
+// (0.2 first layer + 0.12 steps) — slice at 0.12 only.
+// Magnet is pause-captured: pause at the last layer with open pockets
+// (~z=2.6), press the magnet in fully, resume. Polarity doesn't matter —
+// the bare back magnet flips itself to attract.
 
 $fa = 4;
 $fs = 0.25;
@@ -13,115 +15,22 @@ magnet_h = 2;
 clearance = 0.2; // pocket diameter extra — verify with tolerance-test-magnet
 pocket_d = magnet_d + clearance;
 
-face_d = 10;
-total_h = 4.8;
-cap_h = 0.6; // skin-side wall over the magnet, 3 layers at 0.2
-recess = 0.2; // magnet sits this far below the pause surface
+face_d = 8;
+cap_h = 0.32; // skin side, against the plate — compressed by the magnet, 2 layers suffice
+recess = 0.28; // deep enough that the steel nozzle can't lift the magnet into the bridge
+floor_h = 0.48; // face layers bridging over the magnet
+total_h = cap_h + magnet_h + recess + floor_h;
 
-pocket_top = total_h - cap_h;
-pocket_bottom = pocket_top - magnet_h - recess;
-
-spacing = face_d + 6;
-
-module pocket(bottom = pocket_bottom) {
-  translate(v=[0, 0, bottom])
-    cylinder(h=magnet_h + recess, d=pocket_d);
-}
-
-// octagonal frustum flaring from the table to full width, like a bezel-cut stone
-module gem() {
-  difference() {
-    union() {
-      cylinder(h=pocket_bottom, d1=face_d * 0.54, d2=face_d, $fn=8);
-      translate(v=[0, 0, pocket_bottom])
-        cylinder(h=total_h - pocket_bottom, d=face_d, $fn=8);
-    }
-    pocket();
-  }
-}
-
-// hexagonal prism with a chamfered face edge
-module hex() {
-  chamfer_h = 1.5;
-  difference() {
-    union() {
-      cylinder(h=chamfer_h, d1=face_d * 0.7, d2=face_d, $fn=6);
-      translate(v=[0, 0, chamfer_h])
-        cylinder(h=total_h - chamfer_h, d=face_d, $fn=6);
-    }
-    pocket();
-  }
-}
-
-function star_points(n, r_outer, r_inner) =
-  [
-    for (i = [0:2 * n - 1]) let (a = 90 + i * 180 / n, r = i % 2 == 0 ? r_outer : r_inner) [r * cos(a), r * sin(a)],
-  ];
-
-// chamfered disc with a five-point star engraved into the face
-module star() {
-  chamfer_h = 0.8;
-  engrave = 0.8;
-  difference() {
-    union() {
-      cylinder(h=chamfer_h, d1=face_d - 2 * chamfer_h, d2=face_d);
-      translate(v=[0, 0, chamfer_h])
-        cylinder(h=total_h - chamfer_h, d=face_d);
-    }
-    translate(v=[0, 0, -0.5])
-      linear_extrude(engrave + 0.5)
-        polygon(star_points(5, 3.5, 1.6));
-    pocket();
-  }
-}
-
-// plain disc with a wide chamfer, minimal
-module disc() {
-  chamfer_h = 1.2;
-  difference() {
-    union() {
-      cylinder(h=chamfer_h, d1=face_d - 2 * chamfer_h, d2=face_d);
-      translate(v=[0, 0, chamfer_h])
-        cylinder(h=total_h - chamfer_h, d=face_d);
-    }
-    pocket();
-  }
-}
-
-// flat disc as thin as the magnet allows, edge chamfer optional
-module slim(chamfer_h = 0.6, d = face_d) {
-  floor_h = 0.6;
-  slim_h = floor_h + magnet_h + recess + cap_h;
+// flat disc, symmetric edge chamfers, 0 for square edges
+module earring(chamfer_h = 0.6, d = face_d) {
   difference() {
     union() {
       if (chamfer_h > 0)
         cylinder(h=chamfer_h, d1=d - 2 * chamfer_h, d2=d);
       translate(v=[0, 0, chamfer_h])
-        cylinder(h=slim_h - chamfer_h, d=d);
-    }
-    pocket(floor_h);
-  }
-}
-
-slim_chamfers = [0.6, 0.4, 0.2, 0];
-
-// thinnest variant, printed face UP (skin side on the plate) so the visible
-// face is a top surface, not the plate texture. Heights sit on the 0.12mm
-// preset grid (0.2 first layer + 0.12 steps) — slice at 0.12 only.
-// Pause at z=2.6 nominal; place it visually (last layer with open pockets).
-module extra_slim(chamfer_h = 0.6, d = 8) {
-  cap_h = 0.32; // skin side, against the plate — compressed by the magnet, 2 layers suffice
-  recess = 0.28; // deep enough that the steel nozzle can't lift the magnet into the bridge
-  floor_h = 0.48; // face layers bridging over the magnet
-  h = cap_h + magnet_h + recess + floor_h;
-  difference() {
-    union() {
+        cylinder(h=total_h - 2 * chamfer_h, d=d);
       if (chamfer_h > 0)
-        cylinder(h=chamfer_h, d1=d - 2 * chamfer_h, d2=d);
-      translate(v=[0, 0, chamfer_h])
-        cylinder(h=h - 2 * chamfer_h, d=d);
-      if (chamfer_h > 0)
-        translate(v=[0, 0, h - chamfer_h])
+        translate(v=[0, 0, total_h - chamfer_h])
           cylinder(h=chamfer_h, d1=d, d2=d - 2 * chamfer_h);
     }
     translate(v=[0, 0, cap_h])
@@ -129,9 +38,7 @@ module extra_slim(chamfer_h = 0.6, d = 8) {
   }
 }
 
-gem();
-translate(v=[spacing, 0, 0]) hex();
-translate(v=[2 * spacing, 0, 0]) star();
-translate(v=[3 * spacing, 0, 0]) disc();
+chamfers = [0.6, 0.4, 0.2, 0];
+
 for (i = [0:3])
-  translate(v=[i * spacing, -spacing, 0]) slim(slim_chamfers[i]);
+  translate(v=[i * (face_d + 6), 0, 0]) earring(chamfers[i]);
