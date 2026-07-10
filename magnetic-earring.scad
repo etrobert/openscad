@@ -116,7 +116,10 @@ module extra_slim(chamfer_h = 0.6, d = 8) {
   h = cap_h + magnet_h + recess + floor_h;
   difference() {
     union() {
-      cylinder(h=h - chamfer_h, d=d);
+      if (chamfer_h > 0)
+        cylinder(h=chamfer_h, d1=d - 2 * chamfer_h, d2=d);
+      translate(v=[0, 0, chamfer_h])
+        cylinder(h=h - 2 * chamfer_h, d=d);
       if (chamfer_h > 0)
         translate(v=[0, 0, h - chamfer_h])
           cylinder(h=chamfer_h, d1=d, d2=d - 2 * chamfer_h);
