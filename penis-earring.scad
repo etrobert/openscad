@@ -1,21 +1,20 @@
-// Penis figurine (mini-pe.stl) as a rigid magnetic stud: the slim disc from
-// magnetic-earring.scad clamps the lobe, the figure stands on its face.
-// Same print recipe: 0.12mm layers, face up, pause at the last layer with
-// open pockets (~z=2.6), press the magnet in, resume.
-
-use <magnetic-earring.scad>
+// Penis figurine (mini-pe.stl) as a rigid magnetic stud, full scale.
+// The model's existing Ø4.3 bore in the base is widened into a magnet
+// pocket opening at the base (skin side). Print standing as designed, no
+// pause — press the magnet in flush afterwards with a dot of glue. The
+// worn magnet sits directly on skin; the bare back magnet goes behind
+// the lobe as usual.
 
 $fa = 4;
 $fs = 0.25;
 
-model_scale = 0.7;
-base_d = 12;
-base_h = 3.08; // total_h in magnetic-earring.scad
-embed = 0.3; // sink the figure into the disc so the union is solid
+magnet_d = 6;
+magnet_h = 2;
+clearance = 0.2; // verified snug with tolerance-test-magnet
+bore_center = [0.26, 6.68]; // existing hole in the base, measured from the mesh
 
-earring(0.6, base_d);
-
-translate(v=[0, 0, base_h - embed])
-  scale(v=model_scale)
-    translate(v=[-0.28, -9.38, 0]) // center the model bbox on the disc
-      import("mini-pe.stl");
+difference() {
+  import("mini-pe.stl");
+  translate(v=[bore_center.x, bore_center.y, -1])
+    cylinder(h=magnet_h + 1, d=magnet_d + clearance);
+}
