@@ -16,17 +16,47 @@ host=${A1_HOST:-192.168.0.101}
 serial=${A1_SERIAL:-03900D613106171}
 code=${A1_ACCESS_CODE:-$(cat ~/.config/a1-access-code)}
 
-stl=$1
+stl=$(realpath "$1")
 start=${2:-}
 name=$(basename "$stl" .stl)
 work=$(mktemp --directory)
 trap 'rm -rf "$work"' EXIT
+cd "$work" # the slicer drops log files into the working directory
 
-profiles=$(nix path-info nixpkgs#orca-slicer)/share/OrcaSlicer/profiles/BBL
+profiles=$(nix build nixpkgs#orca-slicer --no-link --print-out-paths)/share/OrcaSlicer/profiles/BBL
+
+# The bundled profiles are partial: they point to their base profile via
+# "inherits", which the CLI does not resolve — printable_area and friends
+# would silently fall back to defaults (200x200 plate). Merge each chain
+# into a self-contained file first.
+resolve_profile() {
+  nix run nixpkgs#python3 -- - "$profiles/$1" "$2" "$work/$(basename "$1").json" <<'EOF'
+import json, os, sys
+
+dirpath, name, out = sys.argv[1:4]
+
+def resolve(name):
+    with open(os.path.join(dirpath, name + ".json")) as f:
+        node = json.load(f)
+    parent = node.pop("inherits", None)
+    if parent:
+        base = resolve(parent)
+        base.update(node)
+        return base
+    return node
+
+with open(out, "w") as f:
+    json.dump(resolve(name), f)
+EOF
+}
+
+resolve_profile machine "Bambu Lab A1 0.4 nozzle"
+resolve_profile process "0.12mm High Quality @BBL A1"
+resolve_profile filament "Bambu PLA Basic @BBL A1"
 
 nix run nixpkgs#orca-slicer -- \
-  --load-settings "$profiles/machine/Bambu Lab A1 0.4 nozzle.json;$profiles/process/0.12mm High Quality @BBL A1.json" \
-  --load-filaments "$profiles/filament/Bambu PLA Basic @BBL A1.json" \
+  --load-settings "$work/machine.json;$work/process.json" \
+  --load-filaments "$work/filament.json" \
   --curr-bed-type "Textured PEI Plate" \
   --orient 0 --arrange 1 --slice 0 \
   --export-3mf "$work/$name.gcode.3mf" \
