@@ -15,8 +15,8 @@ $fa = 5;
 $fs = 0.5;
 
 span = 280;
-h = 5; // total thickness
-edge_r = 5; // quarter-round edge radius
+h = 3.5; // total thickness
+edge_r = 3.5; // quarter-round edge radius
 step = 0.24; // slab height, two 0.12mm print layers
 groove_depth = 0.6;
 bed_rot = 45;
