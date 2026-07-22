@@ -9,7 +9,8 @@
 // Tab — the rectangular locating rail on each side; sits in a box's underside
 // recess and runs the full length of the bridge.
 tab_w = 10;            // X, across the boxes
-tab_thickness = 4;     // <= recess depth (~5mm) so the boxes don't rock
+tab_thickness = 10;    // Z; exceeds the ~5mm recess, so rails protrude below
+                       // the box and lift it ~5mm off the floor
 
 // Bridge — spans the seam and joins the two tabs.
 gap_x = 20;            // bridge span between the tabs (X)
