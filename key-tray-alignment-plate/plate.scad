@@ -1,34 +1,26 @@
 // Alignment plate for two side-by-side wooden key trays.
-// A thin plastic plate with two tongues, each nesting in the shallow
-// decorative recess on a box's underside, joined by a bridge across the
-// seam — so the two boxes stay aligned and can't drift apart.
+// A small plastic plate: two locating tabs, each nesting in the shallow
+// decorative recess on a box's underside, joined by an arched bridge across
+// the seam — so the two boxes stay aligned and can't drift apart.
 //
 // Axes: X runs across the two boxes (the bridge direction),
 //       Y runs along the seam between them.
 
-// Measurements — TO VERIFY on the actual boxes
-recess_x = 50;         // recess size across the boxes (X)
-recess_y = 50;         // recess size along the seam (Y)
-recess_depth = 5;      // how far the recess sinks up into the box bottom
-recess_corner_r = 8;   // rounded-corner radius of the recess
-gap_x = 20;            // gap between the two recesses along X — the exposed
-                       // bridge span over the seam
+// Tab — the small rectangle that sits in each box's underside recess.
+tab_w = 10;            // X, across the boxes
+tab_h = 10;            // Y, along the seam
+tab_thickness = 4;     // <= recess depth (~5mm) so the boxes don't rock
+tab_r = 1.5;           // corner rounding
 
-// Fit
-clearance = 0.4;       // per-side gap so a tongue drops into its recess easily
-
-// Plate
-tongue_thickness = 4;  // <= recess_depth so the boxes don't rock (aim just under 5)
+// Bridge — spans the seam and joins the two tabs.
+gap_x = 20;            // exposed bridge span between the tabs (X)
 bridge_thickness = 3;  // arch height at the peak
 bridge_width = 70;     // bridge extent along the seam (Y)
-weld = 2;              // how far the bridge tucks under each tongue, for a solid join
+weld = 2;              // how far the bridge tucks under each tab, for a solid join
 
 // Derived
-recess_spacing = recess_x + gap_x;   // centre-to-centre of the two recesses
-bridge_len_x = gap_x + 2 * weld;     // X length of the bridge bar (exposed span + welds)
-tongue_x = recess_x - 2 * clearance;
-tongue_y = recess_y - 2 * clearance;
-tongue_r = max(0.5, recess_corner_r - clearance);
+tab_center_x = gap_x / 2 + tab_w / 2;   // each tab's offset from centre
+bridge_len_x = gap_x + 2 * weld;        // X length of the bridge bar
 
 $fn = 48;
 
@@ -39,12 +31,11 @@ module rounded_slab(x, y, r, h) {
       square([x - 2 * r, y - 2 * r], center = true);
 }
 
-module tongue() {
-  rounded_slab(tongue_x, tongue_y, tongue_r, tongue_thickness);
+module tab() {
+  rounded_slab(tab_w, tab_h, tab_r, tab_thickness);
 }
 
 module bridge() {
-  // Spans between the two tongue centres; overlaps into each tongue.
   // Cross-section (Y-Z) is a half-ellipse: flat bottom, arched top like a
   // bridge, peaking at bridge_thickness in the middle.
   r = bridge_width / 2;
@@ -63,8 +54,8 @@ module bridge() {
 module plate() {
   union() {
     for (sx = [-1, 1])
-      translate([sx * recess_spacing / 2, 0, 0])
-        tongue();
+      translate([sx * tab_center_x, 0, 0])
+        tab();
 
     bridge();
   }
