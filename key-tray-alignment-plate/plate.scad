@@ -6,33 +6,26 @@
 // Axes: X runs across the two boxes (the bridge direction),
 //       Y runs along the seam between them.
 
-// Tab — the small rectangle that sits in each box's underside recess.
+// Tab — the rectangular locating rail on each side; sits in a box's underside
+// recess and runs the full length of the bridge.
 tab_w = 10;            // X, across the boxes
-tab_h = 10;            // Y, along the seam
 tab_thickness = 4;     // <= recess depth (~5mm) so the boxes don't rock
-tab_r = 1.5;           // corner rounding
 
 // Bridge — spans the seam and joins the two tabs.
-gap_x = 20;            // exposed bridge span between the tabs (X)
+gap_x = 20;            // bridge span between the tabs (X)
 bridge_thickness = 3;  // arch height at the peak
-bridge_width = 70;     // bridge extent along the seam (Y)
-weld = 2;              // how far the bridge tucks under each tab, for a solid join
+bridge_width = 70;     // bridge extent along the seam (Y); tabs share this length
 
 // Derived
-tab_center_x = gap_x / 2 + tab_w / 2;   // each tab's offset from centre
-bridge_len_x = gap_x + 2 * weld;        // X length of the bridge bar
+tab_h = bridge_width;                   // tabs run the full bridge length
+tab_center_x = gap_x / 2 + tab_w / 2;   // tab butts flush against the bridge end
+bridge_len_x = gap_x;                   // X length of the bridge bar
 
 $fn = 48;
 
-// A rounded rectangle of size [x, y], corner radius r, extruded to height h.
-module rounded_slab(x, y, r, h) {
-  linear_extrude(height = h)
-    offset(r = r)
-      square([x - 2 * r, y - 2 * r], center = true);
-}
-
 module tab() {
-  rounded_slab(tab_w, tab_h, tab_r, tab_thickness);
+  translate([-tab_w / 2, -tab_h / 2, 0])
+    cube([tab_w, tab_h, tab_thickness]);
 }
 
 module bridge() {
