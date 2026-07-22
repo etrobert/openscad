@@ -11,20 +11,21 @@ recess_x = 50;         // recess size across the boxes (X)
 recess_y = 50;         // recess size along the seam (Y)
 recess_depth = 5;      // how far the recess sinks up into the box bottom
 recess_corner_r = 8;   // rounded-corner radius of the recess
-recess_spacing = 100;  // centre-to-centre distance of the two recesses
-                       // (= box width, when the boxes touch along long edges)
+gap_x = 20;            // gap between the two recesses along X — the exposed
+                       // bridge span over the seam
 
 // Fit
 clearance = 0.4;       // per-side gap so a tongue drops into its recess easily
 
 // Plate
 tongue_thickness = 4;  // <= recess_depth so the boxes don't rock (aim just under 5)
-bridge_thickness = 4;  // if the boxes touch, ANY thickness here lifts them along
-                       // the bridge path — keep it small, or set = tongue_thickness
-                       // only if there is a real gap for the bridge to sit in
-bridge_width = 30;     // width of the connecting bridge, along the seam (Y)
+bridge_thickness = 3;  // arch height at the peak
+bridge_width = 70;     // bridge extent along the seam (Y)
+weld = 2;              // how far the bridge tucks under each tongue, for a solid join
 
 // Derived
+recess_spacing = recess_x + gap_x;   // centre-to-centre of the two recesses
+bridge_len_x = gap_x + 2 * weld;     // X length of the bridge bar (exposed span + welds)
 tongue_x = recess_x - 2 * clearance;
 tongue_y = recess_y - 2 * clearance;
 tongue_r = max(0.5, recess_corner_r - clearance);
@@ -51,11 +52,11 @@ module bridge() {
   scale([1, 1, bridge_thickness / r])
     intersection() {
       rotate([0, 90, 0])
-        cylinder(h = recess_spacing, r = r, center = true);
+        cylinder(h = bridge_len_x, r = r, center = true);
 
       // Keep only the top half (z >= 0) so the bottom stays flat.
       translate([0, 0, r])
-        cube([recess_spacing + 1, bridge_width, 2 * r], center = true);
+        cube([bridge_len_x + 1, bridge_width, 2 * r], center = true);
     }
 }
 
