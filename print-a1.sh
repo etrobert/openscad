@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Slice an STL and send it to the Bambu A1 over LAN, optionally starting
+# Slice an STL or 3MF and send it to the Bambu A1 over LAN, optionally starting
 # the print. Uses OrcaSlicer's bundled Bambu profiles (A1, 0.4 nozzle,
-# 0.12mm High Quality, PLA Basic, textured plate).
+# 0.12mm High Quality, PLA Basic, textured plate). A 3MF keeps its own
+# process settings (layer heights, walls, infill).
 #
 #   ./print-a1.sh model.stl           # slice + upload only
 #   ./print-a1.sh model.stl --start   # slice + upload + start printing
@@ -16,21 +17,28 @@ host=${A1_HOST:-192.168.0.101}
 serial=${A1_SERIAL:-03900D613106171}
 code=${A1_ACCESS_CODE:-$(cat ~/.config/a1-access-code)}
 
-stl=$1
+model=$1
 start=${2:-}
-name=$(basename "$stl" .stl)
+name=$(basename "${model%.*}")
 work=$(mktemp --directory)
 trap 'rm -rf "$work"' EXIT
 
 profiles=$(nix path-info nixpkgs#orca-slicer)/share/OrcaSlicer/profiles/BBL
 
+settings="$profiles/machine/Bambu Lab A1 0.4 nozzle.json"
+case $model in
+*.stl) settings+=";$profiles/process/0.12mm High Quality @BBL A1.json" ;;
+*.3mf) ;;
+*) echo "unsupported file: $model" >&2 && exit 1 ;;
+esac
+
 nix run nixpkgs#orca-slicer -- \
-  --load-settings "$profiles/machine/Bambu Lab A1 0.4 nozzle.json;$profiles/process/0.12mm High Quality @BBL A1.json" \
+  --load-settings "$settings" \
   --load-filaments "$profiles/filament/Bambu PLA Basic @BBL A1.json" \
   --curr-bed-type "Textured PEI Plate" \
   --orient 0 --arrange 1 --slice 0 \
   --export-3mf "$work/$name.gcode.3mf" \
-  "$stl"
+  "$model"
 
 grep --max-count=1 "total estimated time" <(nix shell nixpkgs#unzip --command unzip -p "$work/$name.gcode.3mf" Metadata/plate_1.gcode)
 

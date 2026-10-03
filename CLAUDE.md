@@ -8,9 +8,11 @@ a committed `.stl` (`nix develop --command openscad -o out.stl in.scad`).
 Bambu Lab A1, 0.4 nozzle, at `192.168.0.101`, serial `03900D613106171`. The LAN
 access code is in `~/.config/a1-access-code` on tower.
 
-`./print-a1.sh <model.stl> [--start]` slices headlessly (OrcaSlicer CLI, 0.12mm
-High Quality, PLA Basic, textured plate), uploads via FTPS, and starts the print
-via MQTT. Monitor progress via MQTT topic `device/<serial>/report`
+`./print-a1.sh <model.stl|model.3mf> [--start]` slices headlessly (OrcaSlicer
+CLI, 0.12mm High Quality, PLA Basic, textured plate), uploads via FTPS, and
+starts the print via MQTT. A 3MF (e.g. a MakerWorld profile) keeps its own
+process settings. MakerWorld downloads need a logged-in browser; curl is blocked
+by Cloudflare. Monitor progress via MQTT topic `device/<serial>/report`
 (`gcode_state`, `mc_percent`; the printer's CA cert must be extracted from the
 TLS handshake and passed as `--cafile`).
 
